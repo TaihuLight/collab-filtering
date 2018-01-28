@@ -123,3 +123,35 @@ opt = optim.SGD(model.parameters(), 1e-1, weight_decay = wd, momentum=0.9)
 
 fit(model, data, 3, opt, F.mse_loss)
 
+set_lrs(opt, 1e-2)
+
+fit(model, data, 3, opt, F.mse_loss)
+
+class EmbeddingNet(nn.Module):
+    def __init__(self, n_users, n_movies, nh=10, p1=0.05, p2=0.5):
+        super().__init__()
+        (self.u, self.m) = [get_emb(*o) for o in [
+            (n_users, n_factors),(n_movies, n_factors)
+        ]]
+        self.lin1 = nn.Linear(n_factors*2, nh)
+        self.lin2 = nn.Linear(nh, 1)
+        self.drop1 = nn.Dropout(p1)
+        self.drop2 = nn.Dropout(p2)
+    
+    def forward(self, cats, conts):
+        users, movies = cats[:,0], cats[:,1]
+        x = self.drop1(torch.cat([self.u(users), self.m(movies)], dim=1))
+        x = self.drop2(F.relu(self.lin1(x)))
+        return F.sigmoid(self.lin2(x))*(max_rating-min_rating+1) + min_rating-0.5
+
+
+wd = 1e-5
+model = EmbeddingNet(n_users, n_movies)
+opt=  optim.Adam(model.parameters(), 1e-3, weight_decay=wd)
+
+fit(model, data,3, opt, F.mse_loss)
+
+set_lrs(opt, 1e-3)
+
+fit(model,data, 3, opt, F.mse_loss)
+
