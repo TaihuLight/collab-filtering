@@ -1,7 +1,6 @@
 # collab-filtering
 Recommender systems using Deep Neural Networks
 
-# CapsNet
 [![Contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=plastic)](CONTRIBUTING.md)
 
 
